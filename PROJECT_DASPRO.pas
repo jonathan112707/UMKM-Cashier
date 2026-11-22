@@ -1,24 +1,24 @@
-program U-Cashier;
+program UCashier;
 
-uses    crt;
+uses crt;
 
-type  DataProduk = record
-        Kode: string[10];
-        Nama: string[35];
-        Kategori: string[20];
-        Harga: longint;
-        Stok: integer;
+type DataProduk = record
+    Kode: string[10];
+    Nama: string[35];
+    Kategori: string[20];
+    Harga: longint;
+    Stok: integer;
   end;
 
-      ItemKeranjang = record
-        Nama: string[35];
-        HargaSatuan: longint;
-        JumlahBeli: integer;
-        Subtotal: longint;
+  ItemKeranjang = record
+    Nama: string[35];
+    HargaSatuan: longint;
+    JumlahBeli: integer;
+    Subtotal: longint;
   end;
 
-    ArrayKatalog = array[1..50] of DataProduk;
-    ArrayKeranjang = array[1..30] of ItemKeranjang;
+  ArrayKatalog = array[1..50] of DataProduk;
+  ArrayKeranjang = array[1..30] of ItemKeranjang;
 
 var
   Katalog: ArrayKatalog;
@@ -49,14 +49,11 @@ begin
   CariIndeksBarang := hasil;
 end;
 
-function HitungDiskon(totalKotor: longint; member: char): longint;
-var
-  status: char;
+function HitungDiskon(totalKotor: longint): longint;
 begin
-  status := UpCase(member);
-  if (status = 'Y') and (totalKotor >= 100000) then
+  if totalKotor >= 100000 then
     HitungDiskon := Round(totalKotor * 0.10)
-  else if (status = 'Y') or (totalKotor >= 100000) then
+  else if totalKotor >= 50000 then
     HitungDiskon := Round(totalKotor * 0.05)
   else
     HitungDiskon := 0;
@@ -131,9 +128,16 @@ var
 begin
   clrscr;
   writeln('STRUK PEMBAYARAN U-CASHIER');
-  writeln('Nama Barang':26, 'Qty':6, 'Harga':10, 'Subtotal':12);
+  writeln('----------------------------------------------');
+  writeln('Nama Barang', ' ':(20 - Length('Nama Barang')), 'Qty':5, 'Harga':10, 'Subtotal':11);
   for i := 1 to jml do
-    writeln(beli[i].Nama:26, beli[i].JumlahBeli:6, beli[i].HargaSatuan:10, beli[i].Subtotal:12);
+    writeln(
+      beli[i].Nama, ' ':(20 - Length(beli[i].Nama)),
+      beli[i].JumlahBeli:5,
+      beli[i].HargaSatuan:10,
+      beli[i].Subtotal:11
+    );
+  writeln('----------------------------------------------');
   writeln('Total Kotor : Rp ', kotor);
   writeln('Diskon      : Rp ', diskon);
   writeln('Total Akhir : Rp ', akhir);
@@ -145,7 +149,7 @@ procedure ProsesTransaksi(var daftar: ArrayKatalog; total: integer; var omzet: l
 var
   jmlItem, idx, qty: integer;
   kodeInput: string[10];
-  lanjut, member: char;
+  lanjut: char;
   kotor, diskon, akhir, bayar, kembali: longint;
 begin
   if total = 0 then
@@ -191,10 +195,10 @@ begin
   end;
   if jmlItem > 0 then
   begin
-    write('Apakah pelanggan member? (Y/T) : ');
-    readln(member);
-    diskon := HitungDiskon(kotor, member);
+    diskon := HitungDiskon(kotor);
     akhir := kotor - diskon;
+    writeln('Total Kotor : Rp ', kotor);
+    writeln('Diskon      : Rp ', diskon);
     writeln('Total Bayar : Rp ', akhir);
     repeat
       write('Uang Tunai  : Rp ');
@@ -223,10 +227,7 @@ begin
     write('Pilih menu (1-4) : ');
     readln(pilihanMenu);
     case pilihanMenu of
-      1: begin 
-            clrscr;
-               TampilkanKatalog(Katalog, jumlahProduk);
-         end;
+      1: begin clrscr; TampilkanKatalog(Katalog, jumlahProduk); end;
       2: ProsesTransaksi(Katalog, jumlahProduk, totalOmzet);
       3: InputProduk(Katalog, jumlahProduk, 'TAMBAH PRODUK BARU');
       4: writeln('Program selesai.');
